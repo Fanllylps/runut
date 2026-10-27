@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f1e8">
+  <meta name="description" content="Runut adalah laboratorium belajar interaktif Algoritma dan Pemrograman untuk mahasiswa semester 1. Pahami algoritma lewat visualisasi, simulasi, dan latihan.">
+  <title>Runut — Lab Algoritma &amp; Pemrograman</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23172019'/%3E%3Cpath d='M18 18h10v9h18M18 31h10v15h18' fill='none' stroke='%23d8f36a' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='18' cy='18' r='4' fill='%23d8f36a'/%3E%3Ccircle cx='46' cy='27' r='4' fill='%23f3f1e8'/%3E%3Ccircle cx='46' cy='46' r='4' fill='%23f3f1e8'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/fraunces-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/manrope-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke materi utama</a>
+
+  <header class="site-header" data-site-header>
+    <div class="header-inner wrap">
+      <a class="brand" href="#/">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 26 26" focusable="false">
+            <path d="M5 5h6v5h10M5 13h6v8h10"></path>
+            <circle cx="5" cy="5" r="2.2"></circle>
+            <circle cx="21" cy="10" r="2.2"></circle>
+            <circle cx="21" cy="21" r="2.2"></circle>
+          </svg>
+        </span>
+        <span class="brand-copy"><span class="brand-name">Runut<span>.</span></span><span class="brand-tagline">lab algoritma</span></span>
+      </a>
+
+      <nav class="header-nav" aria-label="Navigasi utama">
+        <a href="#/" class="header-link" data-header-home>Daftar bab</a>
+        <span class="header-rule" aria-hidden="true"></span>
+        <a href="#/bab/1" class="header-link header-link-context" data-header-context hidden>Bab 01</a>
+      </nav>
+
+      <div class="header-progress" data-header-progress aria-label="Progres keseluruhan">
+        <span class="header-progress-label">Progres</span>
+        <span class="header-progress-value" data-global-progress-label>0%</span>
+        <span class="header-progress-track" aria-hidden="true"><span data-global-progress-fill></span></span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <noscript>
+      <div class="wrap no-script">
+        <strong>JavaScript diperlukan.</strong>
+        <p>Materi, simulasi, kuis, dan progres di Runut dijalankan langsung di browser. Aktifkan JavaScript lalu muat ulang halaman ini.</p>
+      </div>
+    </noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#/">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 26 26" focusable="false">
+              <path d="M5 5h6v5h10M5 13h6v8h10"></path>
+              <circle cx="5" cy="5" r="2.2"></circle>
+              <circle cx="21" cy="10" r="2.2"></circle>
+              <circle cx="21" cy="21" r="2.2"></circle>
+            </svg>
+          </span>
+          <span class="brand-copy"><span class="brand-name">Runut<span>.</span></span><span class="brand-tagline">lab algoritma</span></span>
+        </a>
+        <p>Ruang belajar untuk memahami cara berpikir dan cara kerja program—bukan sekadar menghafal jawaban.</p>
+      </div>
+      <div class="footer-meta">
+        <p><span class="micro-label">Sumber materi</span><br>Bahan ajar Algoritma &amp; Pemrograman, pertemuan 1–4</p>
+        <p><span class="micro-label">Penyimpanan progres</span><br>Hanya di browser perangkat ini.</p>
+      </div>
+      <div class="footer-actions">
+        <a class="text-link" href="#/">Kembali ke daftar bab <span aria-hidden="true">↗</span></a>
+        <button type="button" class="text-button" data-reset-progress>Reset progres belajar</button>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <span>Dibuat untuk belajar pelan-pelan, dari nol.</span>
+      <span class="footer-mark" aria-hidden="true">logika → langkah → hasil</span>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+
+  <script src="js/content/helpers.js" defer></script>
+  <script src="js/content/bab1.js" defer></script>
+  <script src="js/content/bab2.js" defer></script>
+  <script src="js/content/bab3.js" defer></script>
+  <script src="js/content/bab4.js" defer></script>
+  <script src="js/runut-labs.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
