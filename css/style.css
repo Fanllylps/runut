@@ -850,6 +850,69 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.nav-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 38px;
+  padding: 0.36rem 0.64rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 740;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 220ms var(--ease), background-color 220ms var(--ease), border-color 220ms var(--ease), transform 220ms var(--ease);
+}
+
+.nav-toggle:hover {
+  border-color: var(--line-strong);
+  background: var(--paper-soft);
+  transform: translateY(-1px);
+}
+
+.nav-toggle[aria-expanded="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--white);
+}
+
+.nav-toggle svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.nav-toggle .nav-toggle-chevron {
+  width: 10px;
+  height: 10px;
+  opacity: 0.68;
+  transition: transform 240ms var(--ease);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-toggle svg path,
+.nav-toggle svg rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-toggle:focus-visible,
+.sidebar-close:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .header-rule {
   width: 1px;
   height: 18px;
@@ -1940,10 +2003,45 @@ button:disabled {
   grid-template-columns: var(--sidebar) minmax(0, 1fr);
   align-items: start;
   gap: clamp(2rem, 5vw, 4.8rem);
+  transition: grid-template-columns 360ms var(--ease), gap 360ms var(--ease);
 }
 
 .chapter-sidebar {
   min-width: 0;
+  transition: opacity 240ms var(--ease), transform 300ms var(--ease), visibility 0s linear 0s;
+}
+
+.chapter-page.is-sidebar-collapsed .chapter-layout {
+  grid-template-columns: 0 minmax(0, 1fr);
+  gap: 0;
+}
+
+.chapter-page.is-sidebar-collapsed .chapter-sidebar {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-14px);
+  pointer-events: none;
+  transition: opacity 200ms var(--ease), transform 240ms var(--ease), visibility 0s linear 240ms;
+}
+
+.chapter-page.is-sidebar-collapsed .chapter-main {
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.chapter-main {
+  transition: max-width 360ms var(--ease);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.sidebar-drawer-head {
+  display: none;
 }
 
 .sidebar-sticky {
@@ -1955,6 +2053,51 @@ button:disabled {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
   padding-right: 0.25rem;
+}
+
+.sidebar-drawer-head > div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.sidebar-drawer-head strong {
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.sidebar-close {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.28rem;
+  min-height: 44px;
+  padding: 0.35rem 0.1rem 0.35rem 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 720;
+  cursor: pointer;
+  transition: color 160ms var(--ease);
+}
+
+.sidebar-close:hover {
+  color: var(--ink);
+}
+
+.sidebar-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-close svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
 }
 
 .sidebar-progress {
@@ -2121,77 +2264,6 @@ button:disabled {
   font-size: 0.65rem;
 }
 
-.mobile-course-nav {
-  display: none;
-  margin-bottom: 0.7rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--white);
-}
-
-.mobile-course-nav > summary {
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  padding: 0.7rem 1rem;
-  color: var(--ink);
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 740;
-  list-style: none;
-}
-
-.mobile-course-nav > summary::-webkit-details-marker {
-  display: none;
-}
-
-.mobile-course-nav > summary span:last-child {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-}
-
-.mobile-course-nav[open] > summary {
-  border-bottom: 1px solid var(--line);
-}
-
-.mobile-course-nav .course-nav {
-  margin: 0;
-  padding: 0.75rem 0.8rem 0.9rem;
-  border: 0;
-}
-
-.mobile-course-nav .course-nav-head {
-  display: none;
-}
-
-.mobile-course-nav .course-nav-link {
-  min-height: 64px;
-  padding-inline: 0.55rem;
-}
-
-.mobile-course-nav .course-nav-copy strong {
-  font-size: 0.78rem;
-}
-
-.mobile-course-nav .course-nav-meta {
-  font-size: 0.64rem;
-}
-
-.mobile-course-nav .course-nav-index {
-  width: 34px;
-  height: 34px;
-  font-size: 0.66rem;
-}
-
-.mobile-course-nav .course-nav-mark {
-  width: 18px;
-  height: 18px;
-  font-size: 0.75rem;
-}
-
 .toc {
   min-width: 0;
 }
@@ -2314,44 +2386,6 @@ button:disabled {
 
 .toc-back {
   font-size: 0.67rem;
-}
-
-.mobile-toc {
-  display: none;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--white);
-}
-
-.mobile-toc > summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 720;
-  list-style: none;
-}
-
-.mobile-toc > summary::-webkit-details-marker {
-  display: none;
-}
-
-.mobile-toc > summary span:last-child {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-}
-
-.mobile-toc .toc {
-  padding: 0 1rem 1rem;
-  border-top: 1px solid var(--line);
-}
-
-.mobile-toc .toc-head {
-  padding-top: 0.8rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -7673,20 +7707,120 @@ button:disabled {
     max-width: 65ch;
   }
 
-  .chapter-layout {
+  .chapter-layout,
+  .chapter-page.is-sidebar-collapsed .chapter-layout {
     grid-template-columns: minmax(0, 1fr);
+    gap: 0;
   }
 
-  .chapter-sidebar {
-    display: none;
+  .chapter-page.is-sidebar-collapsed .chapter-main {
+    max-width: none;
+    margin-inline: 0;
   }
 
-  .mobile-course-nav {
+  .chapter-sidebar,
+  .chapter-page.is-sidebar-collapsed .chapter-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 70;
     display: block;
+    width: min(88vw, 372px);
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0 1rem calc(1rem + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-right: 1px solid var(--line);
+    background: var(--paper);
+    box-shadow: 22px 0 56px rgba(23, 32, 25, 0.2);
+    opacity: 1;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-104%);
+    transition: transform 320ms var(--ease), visibility 0s linear 320ms;
   }
 
-  .mobile-toc {
+  .chapter-page.is-sidebar-open .chapter-sidebar {
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  .sidebar-sticky {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .sidebar-drawer-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 -1rem 0.9rem;
+    padding: calc(0.9rem + env(safe-area-inset-top)) 1rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .chapter-sidebar .course-nav-link {
+    grid-template-columns: 34px minmax(0, 1fr) 18px;
+    min-height: 64px;
+    padding-inline: 0.55rem;
+  }
+
+  .chapter-sidebar .course-nav-copy strong {
+    font-size: 0.78rem;
+  }
+
+  .chapter-sidebar .course-nav-meta {
+    font-size: 0.64rem;
+  }
+
+  .chapter-sidebar .course-nav-index {
+    width: 34px;
+    height: 34px;
+    font-size: 0.66rem;
+  }
+
+  .chapter-sidebar .course-nav-mark {
+    width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+  }
+
+  .chapter-sidebar .toc-link {
+    font-size: 0.76rem;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
     display: block;
+    background: rgba(23, 32, 25, 0.48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 320ms var(--ease);
+  }
+
+  .chapter-page.is-sidebar-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.sidebar-drawer-open {
+    overflow: hidden;
   }
 
   .chapter-hero-main {
@@ -7859,6 +7993,12 @@ button:disabled {
 
   .header-link {
     font-size: 0.72rem;
+  }
+
+  .nav-toggle {
+    min-height: 44px;
+    padding-inline: 0.58rem;
+    font-size: 0.74rem;
   }
 
   .header-link-context {
@@ -8727,8 +8867,7 @@ button:disabled {
 }
 
 /* Calmer, clearer feedback for self-paced simulations */
-.course-nav-link:focus-visible,
-.mobile-course-nav > summary:focus-visible {
+.course-nav-link:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }

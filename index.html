@@ -31,8 +31,13 @@
       </a>
 
       <nav class="header-nav" aria-label="Navigasi utama">
+        <button type="button" class="nav-toggle" data-sidebar-toggle aria-expanded="false" hidden>
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="2.8" y="3.2" width="14.4" height="13.6" rx="2.4"></rect><path d="M7.4 3.6v12.8"></path></svg>
+          <span>Materi</span>
+          <svg class="nav-toggle-chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5"></path></svg>
+        </button>
         <a href="#/" class="header-link" data-header-home>Daftar bab</a>
-        <span class="header-rule" aria-hidden="true"></span>
+        <span class="header-rule" data-header-rule aria-hidden="true"></span>
         <a href="#/bab/1" class="header-link header-link-context" data-header-context hidden>Bab 01</a>
       </nav>
 

@@ -22,8 +22,8 @@ Buka `http://localhost:8000`. Untuk memakai port lain, jalankan misalnya `PORT=8
 ## Fitur
 
 - Navigasi hash-routed: `#/`, `#/bab/1` sampai `#/bab/4`.
-- Navigasi materi semua bab tersedia di sidebar desktop dan menu ringkas di layar kecil.
-- Progres per bab dan per kuis yang disimpan di `localStorage` (`runut-progress-v1`).
+- Navigasi semua bab dan submateri tersedia lewat tombol **Materi** yang bisa dibuka/tutup: sidebar dapat dilipat di desktop dan tampil sebagai panel geser di layar kecil.
+- Progres per bab dan per kuis yang disimpan di `localStorage` (`runut-progress-v1`); preferensi lipat sidebar disimpan terpisah (`runut-sidebar-collapsed-v1`).
 - Simulasi terkontrol untuk urutan, input–proses–output, dekomposisi, pola, abstraksi, variabel, tipe data, operator, prioritas operator, pseudocode, simbol flowchart, seleksi, dan perulangan.
 - Kontrol Putar/Jeda otomatis, Sebelumnya, Langkah berikutnya manual, Ulangi, dan tempo yang dapat dipilih pada simulasi langkah.
 - Kuis campuran (pilihan ganda, isian, susun urutan) dengan petunjuk bertahap dan pembahasan setelah jawaban diperiksa.
@@ -38,6 +38,7 @@ Simulasi sengaja dibatasi pada materi kurikulum. Situs ini tidak menjalankan kod
 - Kuis pilihan ganda menggunakan pola radiogroup dengan navigasi panah, Home, dan End. Petunjuk serta umpan balik diumumkan melalui live region, dan fokus dipindahkan ke hasil setelah jawaban diperiksa.
 - Tab simulasi memiliki panel terkait, navigasi keyboard, dan hanya tab aktif yang masuk urutan fokus.
 - Tombol susun urutan punya nama aksesibel yang menyebut langkah dan posisinya; perubahan posisi diumumkan.
+- Panel materi di layar kecil dapat ditutup dengan tombol Tutup, klik latar, atau tombol Escape; fokus keyboard terperangkap di dalam panel selama terbuka dan kembali ke tombol Materi setelah ditutup.
 - Target sentuh diperbesar pada layar kecil, fokus keyboard terlihat termasuk pada umpan balik, dan animasi dinonaktifkan saat pengguna memilih `prefers-reduced-motion`.
 
 ## Struktur

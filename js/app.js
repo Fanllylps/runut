@@ -8,11 +8,14 @@
   };
 
   const STORAGE_KEY = 'runut-progress-v1';
+  const SIDEBAR_STORAGE_KEY = 'runut-sidebar-collapsed-v1';
   const main = document.getElementById('main');
+  const mobileSidebarQuery = window.matchMedia ? window.matchMedia('(max-width: 980px)') : null;
   const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
   let state = loadState();
   let currentChapter = null;
   let storageWarningShown = false;
+  let sidebarCollapsed = loadSidebarPreference();
   let toastTimer = null;
 
   function defaultState() {
@@ -141,6 +144,8 @@
   function updateHeader(route) {
     const homeLink = document.querySelector('[data-header-home]');
     const context = document.querySelector('[data-header-context]');
+    const rule = document.querySelector('[data-header-rule]');
+    if (rule) rule.hidden = route.type !== 'chapter';
     if (homeLink) {
       const active = route.type === 'home';
       homeLink.classList.toggle('is-active', active);
@@ -177,6 +182,188 @@
       wrapper.setAttribute('aria-valuetext', overall.done + ' dari ' + overall.total + ' checkpoint selesai');
       wrapper.setAttribute('title', overall.done + ' dari ' + overall.total + ' checkpoint selesai');
     }
+  }
+
+  function loadSidebarPreference() {
+    try {
+      return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function saveSidebarPreference() {
+    try {
+      window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarCollapsed));
+    } catch (error) {
+      // The learning settings still work for this visit when storage is unavailable.
+    }
+  }
+
+  function isMobileSidebar() {
+    if (mobileSidebarQuery) return mobileSidebarQuery.matches;
+    return window.innerWidth <= 980;
+  }
+
+  function sidebarElements() {
+    return {
+      page: main.querySelector('.chapter-page'),
+      panel: main.querySelector('[data-sidebar-panel]'),
+      toggle: document.querySelector('[data-sidebar-toggle]')
+    };
+  }
+
+  function isSidebarDrawerOpen() {
+    const page = main.querySelector('.chapter-page');
+    return Boolean(page && isMobileSidebar() && page.classList.contains('is-sidebar-open'));
+  }
+
+  function syncSidebarState() {
+    const elements = sidebarElements();
+    const page = elements.page;
+    const panel = elements.panel;
+    const toggle = elements.toggle;
+    const mobile = isMobileSidebar();
+
+    if (!page || !panel) {
+      document.body.classList.remove('sidebar-drawer-open');
+      if (toggle) {
+        toggle.hidden = true;
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Buka menu materi');
+        toggle.removeAttribute('aria-controls');
+      }
+      return;
+    }
+
+    if (mobile) page.classList.remove('is-sidebar-collapsed');
+    else {
+      page.classList.remove('is-sidebar-open');
+      page.classList.toggle('is-sidebar-collapsed', sidebarCollapsed);
+    }
+
+    const open = mobile ? page.classList.contains('is-sidebar-open') : !sidebarCollapsed;
+    document.body.classList.toggle('sidebar-drawer-open', mobile && open);
+
+    if (mobile) {
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      panel.setAttribute('aria-hidden', String(!open));
+    } else {
+      panel.removeAttribute('role');
+      panel.removeAttribute('aria-modal');
+      panel.removeAttribute('aria-hidden');
+    }
+
+    if (toggle) {
+      toggle.hidden = false;
+      toggle.setAttribute('aria-controls', 'chapter-sidebar');
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Tutup menu materi' : 'Buka menu materi');
+    }
+  }
+
+  function openSidebar() {
+    const elements = sidebarElements();
+    const page = elements.page;
+    const panel = elements.panel;
+    if (!page) return;
+
+    if (isMobileSidebar()) {
+      page.classList.add('is-sidebar-open');
+      if (panel) panel.scrollTop = 0;
+      syncSidebarState();
+      const closeButton = page.querySelector('.sidebar-close');
+      if (closeButton) closeButton.focus({ preventScroll: true });
+      return;
+    }
+
+    sidebarCollapsed = false;
+    saveSidebarPreference();
+    syncSidebarState();
+  }
+
+  function closeSidebar(restoreFocus) {
+    const elements = sidebarElements();
+    const page = elements.page;
+    if (!page) return false;
+
+    if (isMobileSidebar()) {
+      if (!page.classList.contains('is-sidebar-open')) return false;
+      page.classList.remove('is-sidebar-open');
+      syncSidebarState();
+      if (restoreFocus && elements.toggle) elements.toggle.focus({ preventScroll: true });
+      return true;
+    }
+
+    if (sidebarCollapsed) return false;
+    sidebarCollapsed = true;
+    saveSidebarPreference();
+    syncSidebarState();
+    return true;
+  }
+
+  function closeSidebarDrawer(restoreFocus) {
+    if (!isMobileSidebar()) return false;
+    return closeSidebar(restoreFocus);
+  }
+
+  function toggleSidebar() {
+    const page = main.querySelector('.chapter-page');
+    if (!page) return;
+    if (isMobileSidebar()) {
+      if (page.classList.contains('is-sidebar-open')) closeSidebar(true);
+      else openSidebar();
+      return;
+    }
+    if (sidebarCollapsed) openSidebar();
+    else closeSidebar(false);
+  }
+
+  function trapSidebarFocus(event) {
+    if (!isSidebarDrawerOpen()) return false;
+    const panel = main.querySelector('[data-sidebar-panel]');
+    if (!panel) return false;
+    const focusable = Array.from(panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(function (element) {
+      return !element.closest('[hidden]');
+    });
+    if (!focusable.length) return false;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (!panel.contains(active)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+      return true;
+    }
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+      return true;
+    }
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+      return true;
+    }
+    return false;
+  }
+
+  function handleSidebarViewportChange() {
+    const elements = sidebarElements();
+    const active = document.activeElement;
+    const focusWasInside = Boolean(elements.panel && elements.panel.contains(active));
+    if (elements.page) elements.page.classList.remove('is-sidebar-open');
+    syncSidebarState();
+    if (focusWasInside && elements.toggle) elements.toggle.focus({ preventScroll: true });
+  }
+
+  function focusJumpTarget(node) {
+    if (!node) return;
+    const heading = node.querySelector('h2');
+    if (!heading) return;
+    heading.setAttribute('tabindex', '-1');
+    heading.focus({ preventScroll: true });
   }
 
   function motif(number) {
@@ -326,7 +513,7 @@
     '</div>';
   }
 
-  function renderToc(chapter, progress, mobile) {
+  function renderToc(chapter, progress) {
     const items = chapter.sections.map(function (section, index) {
       const done = isSectionDone(chapter, section.id);
       return '<li><button type="button" class="toc-link ' + (done ? 'is-complete' : '') + '" data-jump-section="' + section.id + '">' +
@@ -345,12 +532,12 @@
       '<div class="toc-bottom">' +
         '<div class="toc-progress"><span data-progress-sections>' + progress.doneSections + ' / ' + progress.totalSections + ' bagian selesai</span><span class="toc-progress-track"><i data-progress-fill style="width:' + progress.percent + '%"></i></span></div>' +
         '<p class="toc-note">Kuis dihitung setelah kamu lulus minimal ' + passMark(chapter.quiz.length) + ' dari ' + chapter.quiz.length + ' soal.</p>' +
-        (mobile ? '' : '<a class="text-link toc-back" href="#/">← Kembali ke daftar bab</a>') +
+        '<a class="text-link toc-back" href="#/">← Kembali ke daftar bab</a>' +
       '</div>' +
       '</nav>';
   }
 
-  function renderCourseNav(chapter, mobile) {
+  function renderCourseNav(chapter) {
     const items = DATA.map(function (item) {
       const progress = chapterProgress(item);
       const current = item.id === chapter.id;
@@ -362,9 +549,7 @@
         '</span><span class="course-nav-mark" data-course-mark="' + item.id + '" aria-hidden="true">' + (progress.complete ? '✓' : current ? '●' : '') + '</span>' +
       '</a></li>';
     }).join('');
-    const nav = '<nav class="course-nav" aria-label="Semua bab materi"><div class="course-nav-head"><span class="block-label">Semua materi</span><span>01–04</span></div><ol class="course-nav-list">' + items + '</ol></nav>';
-    if (!mobile) return nav;
-    return '<details class="mobile-course-nav"><summary><span>Jelajahi semua bab</span><span>Bab ' + chapter.number + ' / 04</span></summary>' + nav + '</details>';
+    return '<nav class="course-nav" aria-label="Semua bab materi"><div class="course-nav-head"><span class="block-label">Semua materi</span><span>01–04</span></div><ol class="course-nav-list">' + items + '</ol></nav>';
   }
 
   function renderMiniCheck(check, chapter, section) {
@@ -477,14 +662,16 @@
         '</div>' +
       '</header>' +
       '<div class="chapter-layout">' +
-        '<aside class="chapter-sidebar"><div class="sidebar-sticky">' +
-          '<div class="sidebar-progress"><span class="block-label">Progres bab</span><strong data-progress-percent>' + progress.percent + '%</strong><span class="sidebar-track"><i data-progress-fill style="width:' + progress.percent + '%"></i></span><small data-progress-sections>' + progress.doneSections + ' / ' + progress.totalSections + ' bagian selesai</small></div>' +
-          renderCourseNav(chapter, false) +
-          renderToc(chapter, progress, false) +
-        '</div></aside>' +
+        '<div class="sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>' +
+        '<aside class="chapter-sidebar" id="chapter-sidebar" data-sidebar-panel aria-label="Materi dan progres bab">' +
+          '<div class="sidebar-sticky">' +
+            '<div class="sidebar-drawer-head"><div><span class="block-label">Navigasi materi</span><strong>Pindah bab atau bagian</strong></div><button type="button" class="sidebar-close" data-sidebar-close aria-label="Tutup menu materi"><span>Tutup</span><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button></div>' +
+            '<div class="sidebar-progress"><span class="block-label">Progres bab</span><strong data-progress-percent>' + progress.percent + '%</strong><span class="sidebar-track"><i data-progress-fill style="width:' + progress.percent + '%"></i></span><small data-progress-sections>' + progress.doneSections + ' / ' + progress.totalSections + ' bagian selesai</small></div>' +
+            renderCourseNav(chapter) +
+            renderToc(chapter, progress) +
+          '</div>' +
+        '</aside>' +
         '<div class="chapter-main">' +
-          renderCourseNav(chapter, true) +
-          '<details class="mobile-toc"><summary><span>Isi bab &amp; progres</span><span data-progress-percent>' + progress.percent + '%</span></summary>' + renderToc(chapter, progress, true) + '</details>' +
           sections +
           '<section class="chapter-summary" aria-labelledby="summary-heading">' +
             '<div class="summary-head"><span class="summary-mark" aria-hidden="true">∴</span><div><p class="eyebrow">Rangkuman bab ' + chapter.number + '</p><h2 id="summary-heading">' + chapter.recap.title + '</h2><p>' + chapter.recap.lead + '</p></div></div>' +
@@ -698,21 +885,21 @@
     if (!currentChapter) return;
     const node = document.getElementById('bagian-' + currentChapter.number + '-' + sectionId);
     if (node) {
+      const fromDrawer = isSidebarDrawerOpen();
+      closeSidebarDrawer(false);
       scrollToTarget(node);
-      closeOpenToc();
+      if (fromDrawer) focusJumpTarget(node);
     }
   }
 
   function jumpToQuiz() {
     const quiz = document.getElementById('kuis');
     if (quiz) {
+      const fromDrawer = isSidebarDrawerOpen();
+      closeSidebarDrawer(false);
       scrollToTarget(quiz);
-      closeOpenToc();
+      if (fromDrawer) focusJumpTarget(quiz);
     }
-  }
-
-  function closeOpenToc() {
-    document.querySelectorAll('.mobile-toc[open]').forEach(function (details) { details.open = false; });
   }
 
   function renderQuizQuestions(chapter) {
@@ -1052,6 +1239,7 @@
 
   function renderRoute(initial) {
     if (window.RUNUT_LABS && typeof window.RUNUT_LABS.cleanup === 'function') window.RUNUT_LABS.cleanup();
+    document.body.classList.remove('sidebar-drawer-open');
     const route = parseRoute();
     currentChapter = route.type === 'chapter' ? route.chapter : null;
 
@@ -1070,6 +1258,7 @@
     }
 
     updateHeader(route);
+    syncSidebarState();
     if (route.type === 'home') {
       initHeroDemo();
     } else if (route.type === 'chapter') {
@@ -1144,6 +1333,15 @@
   }
 
   function handleGlobalClick(event) {
+    const sidebarToggle = event.target.closest('[data-sidebar-toggle]');
+    if (sidebarToggle) { toggleSidebar(); return; }
+
+    const sidebarClose = event.target.closest('[data-sidebar-close]');
+    if (sidebarClose) { closeSidebarDrawer(true); return; }
+
+    const sidebarLink = event.target.closest('[data-sidebar-panel] a[href]');
+    if (sidebarLink) closeSidebarDrawer(true);
+
     const copyButton = event.target.closest('[data-copy-code]');
     if (copyButton) { copyCode(copyButton); return; }
 
@@ -1185,6 +1383,9 @@
   }
 
   function handleTabKeys(event) {
+    if (event.key === 'Escape' && closeSidebarDrawer(true)) return;
+    if (event.key === 'Tab' && trapSidebarFocus(event)) return;
+
     const tab = event.target.closest('[role="tab"]');
     if (!tab) return;
     const tablist = tab.closest('[role="tablist"]');
@@ -1212,6 +1413,13 @@
     }
     document.addEventListener('click', handleGlobalClick);
     document.addEventListener('keydown', handleTabKeys);
+    if (mobileSidebarQuery) {
+      if (typeof mobileSidebarQuery.addEventListener === 'function') {
+        mobileSidebarQuery.addEventListener('change', handleSidebarViewportChange);
+      } else if (typeof mobileSidebarQuery.addListener === 'function') {
+        mobileSidebarQuery.addListener(handleSidebarViewportChange);
+      }
+    }
     window.addEventListener('hashchange', function () {
       const hash = window.location.hash;
       // In-page anchors such as #main or #modul must not trigger a route render.
